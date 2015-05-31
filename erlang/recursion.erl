@@ -3,7 +3,9 @@
 -export([len/1,
          fac/1,
          tail_fac/1,
-         tail_len/1]).
+         tail_len/1,
+         lenient_zip/2,
+         tail_lenient_zip/2]).
 
 
 fac(0) -> 1;
@@ -22,3 +24,12 @@ tail_len(L) -> tail_len(L,0).
 tail_len([], Acc) -> Acc;
 tail_len([_|T], Acc) -> tail_len(T,Acc+1).
 
+lenient_zip([],_) -> [];
+lenient_zip(_,[]) -> [];
+lenient_zip([X|Xs], [Y|Ys]) -> [{X,Y}|lenient_zip(Xs,Ys)].
+
+tail_lenient_zip(X,Y) -> tail_lenient_zip(X,Y,[]).
+
+tail_lenient_zip([],_,Acc) -> lists:reverse(Acc);
+tail_lenient_zip(_,[],Acc) -> lists:reverse(Acc);
+tail_lenient_zip([X|Xs], [Y|Ys], Acc) -> tail_lenient_zip(Xs,Ys,[{X,Y}|Acc]).
