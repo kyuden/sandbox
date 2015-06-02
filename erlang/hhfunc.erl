@@ -17,6 +17,7 @@ add(X,Y) -> X() + Y().
 % 16>
 % 16> hhfunc:map(fun(X) -> X*5 end , [1,2,3,4,5]).
 % [5,10,15,20,25]
+
 map(F, L) -> map(F, L, []).
 
 map(_, [], Acc) -> lists:reverse(Acc);
