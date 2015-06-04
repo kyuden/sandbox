@@ -14,6 +14,7 @@ rpn("+", [N1, N2|Stack]) -> [(N2+N1)|Stack];
 rpn("-", [N1, N2|Stack]) -> [(N2-N1)|Stack];
 rpn("*", [N1, N2|Stack]) -> [(N2*N1)|Stack];
 rpn("/", [N1, N2|Stack]) -> [(N2/N1)|Stack];
+rpn("^", [N1, N2|Stack]) -> [math:pow(N2,N1)|Stack];
 rpn(X, Stack) -> [read(X)|Stack].
 
 read(N) ->
