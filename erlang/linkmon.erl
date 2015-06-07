@@ -18,3 +18,27 @@ chain(N) ->
     _ -> ok
   end.
 
+start_critic() ->
+  spawn(?MODULE, critic, []).
+
+judge(Pid, Band, Alubum) ->
+  Pid ! {self(), {Band, Alubum}},
+  receive
+    {Pid, Criticism} -> Criticism
+  after 2000 ->
+    timeout
+  end.
+
+critic() ->
+  receive
+    {From, {"Rnage", "Unit"}} ->
+      From ! {self(), "They are great!"};
+    {From, {"System", "Memoize"}} ->
+      From ! {self(), "They are'nt johinny crash but they are good"};
+    {From, {"Jonny", "Token"}} ->
+      From ! {self(), "Simply"};
+    {From, {_Band, _Album}} ->
+      From ! {self(), "They are terribule!"}
+  end,
+  critic().
+
