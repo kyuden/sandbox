@@ -21,24 +21,41 @@ chain(N) ->
 start_critic() ->
   spawn(?MODULE, critic, []).
 
-judge(Pid, Band, Alubum) ->
-  Pid ! {self(), {Band, Alubum}},
+start_critic2() ->
+  spawn(?MODULE, restarter, []).
+
+restarter() ->
+  process_flag(trap_exit, true),
+  Pid = spawn_link(?MODULE, critic, []),
+  register(critic, Pid),
   receive
-    {Pid, Criticism} -> Criticism
+    {'EXIT', Pid, normal} ->
+      ok;
+    {'EXIT', Pid, shutdown} ->
+      ok;
+    {'EXIT', Pid, _} ->
+      restarter()
+  end.
+
+judge(Band, Alubum) ->
+  Ref = make_ref(),
+  critic ! {self(), Ref, {Band, Alubum}},
+  receive
+    {Ref, Criticism} -> Criticism
   after 2000 ->
     timeout
   end.
 
 critic() ->
   receive
-    {From, {"Rnage", "Unit"}} ->
-      From ! {self(), "They are great!"};
-    {From, {"System", "Memoize"}} ->
-      From ! {self(), "They are'nt johinny crash but they are good"};
-    {From, {"Jonny", "Token"}} ->
-      From ! {self(), "Simply"};
-    {From, {_Band, _Album}} ->
-      From ! {self(), "They are terribule!"}
+    {From, Ref, {"Rnage", "Unit"}} ->
+      From ! {Ref, "They are great!"};
+    {From, Ref, {"System", "Memoize"}} ->
+      From ! {Ref, "They are'nt johinny crash but they are good"};
+    {From, Ref, {"Jonny", "Token"}} ->
+      From ! {Ref, "Simply"};
+    {From, Ref, {_Band, _Album}} ->
+      From ! {Ref, "They are terribule!"}
   end,
   critic().
 
