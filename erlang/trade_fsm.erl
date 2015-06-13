@@ -2,6 +2,13 @@
 -behavior(gen_fsm).
 -compile(export_all).
 
+-record(state, {name="",
+                other,
+                ownitems=[],
+                otheritems=[],
+                monitor,
+                from}).
+
 start(Name) ->
   gen_fsm:start(?MODULE, [Name], []).
 
@@ -65,8 +72,43 @@ do_commit(OtherPid) ->
 notify_cancel(OtherPid) ->
   gen_fsm:send_all_state_event(OtherPid, cancel).
 
+init(Name) ->
+  {ok, idle, #state{name=Name}}.
 
+notice(#state{name=N}, Str, Args) ->
+  io:format("~s: "++Str++"~n", [N|Args]).
 
+unexpected(Msg, State) ->
+  io:format("~p received unknown event ~p while in state ~p~n", [self(), Msg, State]).
+
+idle({ask_negotiate, OtherPid}, S=#state{}) ->
+  Ref = monitor(process, OtherPid),
+  notice(S, "~p asked for a trade negotiation", [OtherPid]),
+  {next_state, idle_wait, S#state{other=OtherPid, monitor=Ref}};
+idle(Event, Data) ->
+  unexpected(Event, idle),
+  {next_state, idle, Data}.
+
+idle({negotiate, OtherPid}, From, S=#state{}) ->
+  ask_negotiate(OtherPid, self()),
+  notice(S, "asking user ~p for a trade", [OtherPid]),
+  Ref = monitor(process, OtherPid),
+  {next_state, idle_wait, S#state{other=OtherPid, monitor=Ref, from=From}};
+idle(Event, _From, Data) ->
+  unexpected(Event, idle),
+  {next_state, idle, Data}.
+
+idle_wait({ask_negotiate, OtherPid}, S=#state{other=OtherPid}) ->
+  gen_fsm:reply(S#state.from, ok),
+  notice(S, "starting negotiation", []),
+  {next_state, negotiate, S};
+idle_wait({accept_negotiate, OtherPid}, S=#state{other=OtherPid}) ->
+  gen_fsm:reply(S#state.from, ok),
+  notice(S, "starting negotiation", []),
+  {next_state, negotiate, S};
+idle_wait(Event, Data) ->
+  unexpected(Event, idle_wait),
+  {next_state, idle_wait, Data}.
 
 
 
