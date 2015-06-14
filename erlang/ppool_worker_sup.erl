@@ -1,4 +1,4 @@
--module(pool_worker_sup).
+-module(ppool_worker_sup).
 -behavior(supervisor).
 -compile(export_all).
 
