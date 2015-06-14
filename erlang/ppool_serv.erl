@@ -99,7 +99,7 @@ handle_down_worker(Ref, S=#state{limit=L, sup=Sup, refs=Refs}) ->
 code_change(_OldVsn, State, _Extra) ->
   {ok, state}.
 
-terminate(_Readon, _State) ->
+terminate(_Reason, _State) ->
   ok.
 
 
