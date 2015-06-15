@@ -18,9 +18,6 @@ cast(Pid, Msg) ->
   Pid ! {async, Msg},
   ok.
 
-reply({Pid, Ref}, Reply) ->
-  Pid ! {Ref, Reply}.
-
 start(Module, InitialState) ->
   spawn(fun() -> init(Module, InitialState) end).
 

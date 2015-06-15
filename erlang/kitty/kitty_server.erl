@@ -8,6 +8,9 @@ start_link() ->
 
 init([]) -> [].
 
+reply({Pid, Ref}, Reply) ->
+  Pid ! {Ref, Reply}.
+
 order_cat(Pid, Name, Color, Description) ->
   my_server:call(Pid, {order, Name, Color, Description}).
 
