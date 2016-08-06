@@ -1,0 +1,7 @@
+#!/bin/sh
+
+(exit 3) | (exit 4) | (exit 5)
+ary=${PIPESTATUS[@]}
+echo ${ary[0]}
+echo ${ary[1]}
+echo ${ary[2]}
